@@ -1,0 +1,16 @@
+{
+    "builds": [{
+      "src": "CalorieCrunch/wsgi.py",
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "15mb", "runtime": "python3.12.4" }
+    }],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "CalorieCrunch/wsgi.py"
+      }
+    ],
+    "env": {
+      "DJANGO_SETTINGS_MODULE": "CalorieCrunch.settings"
+    }
+  }

@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalorieCrunch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'style.css' %}" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <img src="{% static 'images/logo.png' %}" class="img-fluid logo mb-5 mt-5" alt="Logo">
+    
+                <div class="input-group input-group-lg mb-5">
+                    <input type="text" id="foodInput" class="form-control" placeholder="Enter food...">
+                    <button class="btn btn-primary" type="button" id="searchButton">Search</button>
+                </div>
+    
+                <div class="alert alert-warning" style="display: none;" id="errorMessage">
+                    Oh no! Something went wrong. Please try again in sometime.
+                </div>
+    
+                <h1 class="mt-5" id="calorieResult"><strong></strong></h1>
+    
+                <img src="{% static 'images/shocked.png' %}" class="img-fluid mb-3" alt="Shocked face" id="shockedFace" style="display: none;">
+
+                <div class="alert alert-danger align-items-center mt-3" role="alert" id="warningMessage" style="display:none;">
+                    <div id="warningText"></div>
+                </div>
+            </div>
+
+        <div class="row justify-content-center mt-5 mb-5">
+            <div class="col-md-10 caloriescont shadow rounded">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h2 class="mt-3 mb-4">Nutritional Values</h2>
+                        <ul class="nutritional-list list-unstyled" id="nutritionList">
+                            <li class="servingsize">Serving Size per 100/Grams <span class="float-end" id="servingSize"></span></li>
+                            <li>Carbohydrates <span class="float-end" id="carbohydrates">0.00</span></li>
+                            <li>Cholesterol <span class="float-end" id="cholesterol">0.00</span></li>
+                            <li>Saturated fat <span class="float-end" id="saturatedFat">0.00</span></li>
+                            <li>Total Fat <span class="float-end" id="totalFat">0.00</span></li>
+                            <li>Fiber Content <span class="float-end" id="fiberContent">0.00</span></li>
+                            <li>Potassium <span class="float-end" id="potassium">0.00</span></li>
+                            <li>Protein <span class="float-end" id="protein">0.00</span></li>
+                            <li>Sodium <span class="float-end" id="sodium">0.00</span></li>
+                            <li>Sugar <span class="float-end" id="sugar">0.00</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-6 mb-5">
+                        <h3 class="mt-3 mb-4">Burn <span id="burnCalories">0</span> calories by</h3>
+                        <div class="activity-item d-flex align-items-center mb-4">
+                            <img src="{% static 'images/jog.png' %}" alt="Jog" class="activity-icon">
+                            <div class="ms-3">
+                                <h4>Head out for a Jog</h4>
+                                <p>Jog for <strong id="jogTime">0</strong> Minutes</p>
+                            </div>
+                        </div>
+                        <div class="activity-item d-flex align-items-center mb-4">
+                            <img src="{% static 'images/yoga.png' %}" alt="Yoga" class="activity-icon">
+                            <div class="ms-3">
+                                <h4>Do Power Yoga</h4>
+                                <p>Power Yoga for <strong id="yogaTime">0</strong> Minutes</p>
+                            </div>
+                        </div>
+                        <div class="activity-item d-flex align-items-center mb-4">
+                            <img src="{% static 'images/gym.png' %}" alt="Gym" class="activity-icon">
+                            <div class="ms-3">
+                                <h4>Get a Gym Workout</h4>
+                                <p>Lift weights for <strong id="gymTime">0</strong> Minutes</p>
+                            </div>
+                        </div>
+                        <div class="activity-item d-flex align-items-center">
+                            <img src="{% static 'images/walk.png' %}" alt="Walk" class="activity-icon">
+                            <div class="ms-3">
+                                <h4>Go for a Brisk Walk</h4>
+                                <p>Brisk walk for <strong id="walkTime">0</strong> Minutes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div> <br>
+                <div class="col-md-10" id="chartContainer" style="display: none;">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const food = document.getElementById('foodInput').value;
+            fetch(`/nutrition/?food=${encodeURIComponent(food)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('errorMessage').style.display = 'block';
+                        document.getElementById('errorMessage').textContent = data.error;
+                    } else {
+                        document.getElementById('errorMessage').style.display = 'none';
+                        const calories = parseFloat(data['Calories']);
+                        document.getElementById('calorieResult').innerHTML = `${food} has a total of <strong>${calories} Calories</strong>`;
+                        document.getElementById('burnCalories').textContent = calories;
+                        
+                        document.getElementById('servingSize').textContent = data['Serving Size'];
+                        document.getElementById('carbohydrates').textContent = data['Carbohydrates'];
+                        document.getElementById('cholesterol').textContent = data['Cholesterol'];
+                        document.getElementById('saturatedFat').textContent = data['Saturated fat'];
+                        document.getElementById('totalFat').textContent = data['Total Fat'];
+                        document.getElementById('fiberContent').textContent = data['Fiber Content'];
+                        document.getElementById('potassium').textContent = data['Potassium'];
+                        document.getElementById('protein').textContent = data['Protein'];
+                        document.getElementById('sodium').textContent = data['Sodium'];
+                        document.getElementById('sugar').textContent = data['Sugar'];
+                        
+                        const weight = 72.5; 
+                        
+                        const jogMET = 7.0;  
+                        const yogaMET = 3.0; 
+                        const gymMET = 5.0;  
+                        const walkMET = 4.3; 
+
+                        const jogTime = calories / (jogMET * weight * 1.05);
+                        const yogaTime = calories / (yogaMET * weight * 1.05);
+                        const gymTime = calories / (gymMET * weight * 1.05);
+                        const walkTime = calories / (walkMET * weight * 1.05);
+
+                        document.getElementById('jogTime').textContent = Math.round(jogTime * 60);
+                        document.getElementById('yogaTime').textContent = Math.round(yogaTime * 60);
+                        document.getElementById('gymTime').textContent = Math.round(gymTime * 60);
+                        document.getElementById('walkTime').textContent = Math.round(walkTime * 60);
+                    
+                        document.getElementById('shockedFace').style.display = calories > 200 ? 'inline' : 'none';
+                        
+                        const nutritionValues = [
+                            parseFloat(data['Carbohydrates']),
+                            parseFloat(data['Cholesterol']),
+                            parseFloat(data['Saturated fat']),
+                            parseFloat(data['Total Fat']),
+                            parseFloat(data['Fiber Content']),
+                            parseFloat(data['Potassium']),
+                            parseFloat(data['Protein']),
+                            parseFloat(data['Sodium']),
+                            parseFloat(data['Sugar'])
+                        ].map(value => parseFloat(value));
+
+                        updateChart(food, nutritionValues);
+
+                        let warnings = [];
+                        if (parseFloat(data['Sodium']) > 500) {
+                            warnings.push("This food contains a high amount of sodium. High Sodium causes severe dehydration and water retention.");
+                        }
+                        if (parseFloat(data['Sugar']) > 25) {
+                            warnings.push("This food is high in sugar. Excessive sugar intake can lead to various health issues.");
+                        }
+                        if (parseFloat(data['Saturated fat']) > 5) {
+                            warnings.push("This food is high in saturated fat. High saturated fat intake can increase the risk of heart disease.");
+                        }
+                        
+                        const warningMessage = document.getElementById('warningMessage');
+                        const warningText = document.getElementById('warningText');
+                        if (warnings.length > 0) {
+                            warningText.innerHTML = warnings.join('<br>');
+                            warningMessage.style.display = 'flex';
+                        } else {
+                            warningMessage.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('errorMessage').textContent = 'An error occurred while fetching nutrition data.';
+                });
+        });
+        </script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let myChart;
+function updateChart(food, data) {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            console.log('Current Chart:', myChart);
+            if (myChart) {
+                myChart.destroy();
+            }
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Carbohydrates', 'Cholesterol', 'Saturated Fat', 'Total Fat', 'Fiber', 'Potassium', 'Protein', 'Sodium', 'Sugar'],
+                    datasets: [{
+                        label: `Nutritional Values for ${food}`,
+                        data: data,
+                        backgroundColor: '#d15a66',
+                        borderColor: 'rgba(209, 90, 102, 0.2)',
+                        borderWidth: 1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive : true,
+                    layout: {
+                        padding: {
+                            left: 45
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: false,
+                            title: {
+                                display: true,
+                                text: 'Nutritients',
+                                font:{
+                                    family: 'Montserrat',
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Montserrat',
+                                }
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            title : {
+                                display: true,
+                                text: 'Values (per 100 gms)',
+                                font: {
+                                    family: 'Montserrat',
+                                }
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    family: 'Montserrat',
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            document.getElementById('chartContainer').style.display = 'block';
+        }
+  </script>
+</body>
+</html>
