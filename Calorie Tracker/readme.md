@@ -104,7 +104,7 @@ http://127.0.0.1:8000/
 4. Explore nutritional information and calorie-burning suggestions.
 
 ## Deployment
-The project is available on Vercel. [CalorieCrunch](https://minimalist-369.netlify.app/)
+The project will be available on Vercel.
 
 ## Contributing
 This is a personal project, but suggestions and feedback are welcome. Feel free to open an issue if you have ideas for improvements or encounter any bugs.
