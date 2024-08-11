@@ -63,7 +63,7 @@ To explore these projects locally:
 3. Follow the installation instructions in the project's individual README file.
 
 ## Installation and Usage
-Please refer to the individual README files within each project directory for specific installation and usage instructions.
+Please refer to the individual readme files within each project directory for specific installation and usage instructions.
 
 - [dntCARE](./dntCARE/README.md)
 - [CalorieCrunch](./Calorie%20Tracker/README.md)
